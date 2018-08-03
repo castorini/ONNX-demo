@@ -49,7 +49,7 @@ def embedding(sentences, length, single_sentence_length):
 
     for i in range(len(sentences)):
         words = sentences[i]
-        sentence_matrix = sentence_to_embedding(words, single_sentence_length, matrix, i)
+        sentence_to_embedding(words, single_sentence_length, matrix, i)
 
     return matrix
 
