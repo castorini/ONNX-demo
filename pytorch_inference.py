@@ -16,11 +16,13 @@ sys.path.append(cur_path + '/kim_cnn')
 from kim_cnn import KimCNN
 mod = KimCNN()
 
+
 def mod_inference(matrix):
     Batch = namedtuple('Batch', ['data'])
     pytorch_input = torch.FloatTensor(matrix)
     output = mod.vector_inference(Variable(pytorch_input))
     return output
+
 
 def inference(sentence):
     print("input sentence:")
@@ -28,13 +30,15 @@ def inference(sentence):
     sentences = []
     words = sentence.split(' ')
     sentences.append(words)
-    sentences_embedding = embedding(sentences, batch_size, single_sentence_length)
+    sentences_embedding = embedding(
+        sentences, batch_size, single_sentence_length)
     print("input embedding:")
     print(sentences_embedding)
     output = mod_inference(sentences_embedding)
     print("output vector:")
     print(output)
     return output
+
 
 load_embedding()
 inference("in his first stab at the form , jacquot takes a slightly anarchic approach that works only sporadically .")

@@ -7,6 +7,7 @@ from collections import defaultdict
 
 embedding_cache = dict()
 
+
 def load_embedding(filename="word2vec.sst-1"):
     global embedding_cache
     header_found = False
@@ -20,16 +21,18 @@ def load_embedding(filename="word2vec.sst-1"):
             vec = list(map(float, parts[1:]))
             embedding_cache[parts[0]] = vec
 
+
 def sentence_to_embedding(words, length, matrix, sentence_i):
     """
     if length > len(words), padding 0 to extend the sentence matrix
     """
     chr_i = 0
     for word in words:
-        if chr_i == length: continue # exceed the limit of sentence length
+        if chr_i == length:
+            continue  # exceed the limit of sentence length
         word_vec = embedding_cache.get(word, None)
         vec = None
-        if word_vec == None:
+        if word_vec is None:
             # random vector if word not in lookup
             # print('Not found in Cache: ' + word)
             vec = np.random.rand(300)
@@ -37,8 +40,10 @@ def sentence_to_embedding(words, length, matrix, sentence_i):
             vec = np.array(word_vec)
         matrix[sentence_i, 0, chr_i] = vec
         chr_i += 1
-    
-    return matrix # (num_sentencens, channel = 1, sentence_length, word_embdding_length = 300)
+
+    # (num_sentencens, channel = 1, sentence_length, word_embdding_length = 300)
+    return matrix
+
 
 def embedding(sentences, length, single_sentence_length):
     """
