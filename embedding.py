@@ -8,7 +8,7 @@ from collections import defaultdict
 embedding_cache = dict()
 
 
-def load_embedding(filename="word2vec.sst-1"):
+def load_embedding(filename="word2vec.txt"):
     global embedding_cache
     header_found = False
     with open(filename, 'r', encoding="utf-8") as f:
