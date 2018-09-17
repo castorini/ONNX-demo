@@ -11,6 +11,7 @@ docker run -it h379wang/kim-model-conversion:latest /bin/bash
 ### Get Datasets
 ```
 cd kim_cnn
+chmod +x get_data.sh
 ./get_data.sh
 ```
 ----------
@@ -29,6 +30,7 @@ python3 mxnet_inference.py
 ```
 cp ./kim_cnn/data/word2vec.txt ./scala_inference
 cd scala_inference
+chmod +x prediction.sh
 ./prediction.sh
 ```
 ----------
