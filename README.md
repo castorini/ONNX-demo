@@ -14,6 +14,13 @@ cd kim_cnn
 chmod +x get_data.sh
 ./get_data.sh
 ```
+
+Note that the convert_bin2txt.py process of converting the whole GoogleNews-vectors-negative300.bin embedding can take a long time. For testing purpose if you only need a small subset of the embedding, please execute the following commands:
+```
+cd kim_cnn
+chmod +x get_data_subset.sh
+./get_data_subset.sh
+```
 ----------
 ### PyTorch inference demo of Kim Model
 ```
