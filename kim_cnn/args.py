@@ -26,6 +26,7 @@ def get_args():
     parser.add_argument('--trained_model', type=str, default="")
     parser.add_argument('--weight_decay',type=float, default=0)
 
-
-    args = parser.parse_args()
+    args, unknown = parser.parse_known_args()
+    # unkown variable is extra but needed
+    # without unkown variable, there will be a conflict with the ArgumentParser of pytorch_inference.py
     return args

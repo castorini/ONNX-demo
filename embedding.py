@@ -1,13 +1,12 @@
 import numpy as np
 import sys
 import os
-import random
 import time
 from collections import defaultdict
 
 embedding_cache = dict()
 
-def load_embedding(filename="kim_cnn/data/word2vec.txt"):
+def load_embedding(filename, random_seed):
     global embedding_cache
     header_found = False
     with open(filename, 'r', encoding="utf-8") as f:
@@ -19,7 +18,7 @@ def load_embedding(filename="kim_cnn/data/word2vec.txt"):
                 continue
             vec = list(map(float, parts[1:]))
             embedding_cache[parts[0]] = vec
-
+    np.random.seed(random_seed)
 
 def sentence_to_embedding(words, length, matrix, sentence_i):
     """
@@ -42,7 +41,6 @@ def sentence_to_embedding(words, length, matrix, sentence_i):
 
     # (num_sentencens, channel = 1, sentence_length, word_embdding_length = 300)
     return matrix
-
 
 def embedding(sentences, length, single_sentence_length):
     """
