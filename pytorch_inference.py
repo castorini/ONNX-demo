@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import os
 import sys
+import argparse
 import torch.nn.functional as F
 from torch.autograd import Variable
 from torch import nn
@@ -16,13 +17,11 @@ sys.path.append(cur_path + '/kim_cnn')
 from kim_cnn import KimCNN
 mod = KimCNN()
 
-
 def mod_inference(matrix):
     Batch = namedtuple('Batch', ['data'])
     pytorch_input = torch.FloatTensor(matrix)
     output = mod.vector_inference(Variable(pytorch_input))
     return output
-
 
 def inference(sentence):
     print("input sentence:")
@@ -39,6 +38,12 @@ def inference(sentence):
     print(output)
     return output
 
-
-load_embedding()
-inference("in his first stab at the form , jacquot takes a slightly anarchic approach that works only sporadically .")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--embedding", dest="embedding",
+                    help="Read embedding from the path", metavar="FILE", required=True)
+    parser.add_argument('--seed', nargs='?', dest="seed", const=1, type=int) # set default random seed to 1
+    args = parser.parse_args()
+    
+    load_embedding(args.embedding, args.seed)
+    inference("in his first stab at the form , jacquot takes a slightly anarchic approach that works only sporadically .")

@@ -1,5 +1,6 @@
 import numpy as np
 import mxnet as mx
+import argparse
 import mxnet.contrib.onnx as onnx_mxnet
 from collections import namedtuple
 from embedding import embedding
@@ -25,7 +26,6 @@ mod.set_params(
     aux_params=aux_params,
     allow_missing=True)
 
-
 def mod_inference(matrix):
     random_input = np.random.rand(
         batch_size,
@@ -50,7 +50,6 @@ def mod_inference(matrix):
     output = mod.get_outputs()[0]
     return output
 
-
 def inference(sentence):
     print("input sentence:")
     print(sentence)
@@ -66,6 +65,12 @@ def inference(sentence):
     print(output)
     return output
 
-
-load_embedding()
-inference("there is a fabric of complex ideas here")
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--embedding", dest="embedding",
+                    help="Read embedding from the path", metavar="FILE", required=True)
+    parser.add_argument('--seed', nargs='?', dest="seed", const=1, type=int) # set default random seed to 1
+    args = parser.parse_args()
+    
+    load_embedding(args.embedding, args.seed)
+    inference("in his first stab at the form , jacquot takes a slightly anarchic approach that works only sporadically .")
