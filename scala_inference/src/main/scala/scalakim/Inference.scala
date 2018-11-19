@@ -12,23 +12,26 @@ import java.nio.charset.CodingErrorAction
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-object App {
+object Inference {
   val usage = """
-    Usage: scalakim [embedding-file] [word-embedding-dim] [sentence-length]
+    Usage: Inference [embedding-file] [word-embedding-dim] [sentence-length] [random-seed (default 1)]
   """
-  val logger = LoggerFactory.getLogger(App.getClass)
-  var embeddingCache:Map[String, NDArray] = Map()
+  val logger = LoggerFactory.getLogger(Inference.getClass)
+  var embeddingCache:Map[String, Array[Float]] = Map()
   val mod = Module.loadCheckpoint("kim", 100) // modelPrefix="kim", loadModelEpoch=100
-  
+
   var batchSize    = 1
   var channel      = 1
   var embeddingDim = 300
   var singleSentenceLength = 49
+  var embeddingDimShape = Shape(embeddingDim)
+
+  var random = new scala.util.Random(1)
 
   def init_embedding(embeddingFile: String): Unit = {
     val decoder = Codec.UTF8.decoder.onMalformedInput(CodingErrorAction.IGNORE)
     for (embeddingStr <- Source.fromFile(embeddingFile)(decoder).getLines) {
-      var vec: NDArray = NDArray.zeros(embeddingDim)
+      val vec = new Array[Float](embeddingDim)
       var tokens : Array[String] = embeddingStr.split(" ")
       var i = 0
       var word = ""
@@ -36,9 +39,9 @@ object App {
         if (i == 0) {
           word = token
         } else {
-          vec.at(i - 1).set(token.toFloat)
-          i += 1
+          vec(i-1) = token.toFloat
         }
+        i += 1
       }
       embeddingCache(word) = vec
     }
@@ -48,8 +51,8 @@ object App {
     var chrIdx = 0
     for (word <- words) {
       if (chrIdx != singleSentenceLength) {
-        val wordVec: Option[NDArray] = embeddingCache.get(word)
-        var vec: NDArray = wordVec.getOrElse(random_uniform(-1, 1, embeddingDim))
+        val wordVec: Option[Array[Float]] = embeddingCache.get(word)
+        var vec: NDArray = NDArray.array(wordVec.getOrElse(Array.fill(embeddingDim){random.nextFloat}), shape = embeddingDimShape)
         matrix.at(sentenceIdx).at(0).at(chrIdx).set(vec)
       }
       chrIdx += 1
@@ -76,7 +79,7 @@ object App {
   }
 
   def main(args : Array[String]) {
-    if (args.length != 3) {
+    if (args.length < 3) {
       logger.error(usage);
       System.exit(1)
     }
@@ -89,6 +92,10 @@ object App {
     embeddingDim = args(1).toInt
     singleSentenceLength = args(2).toInt
 
+    if (args.length == 4) {
+      random = new scala.util.Random(args(3).toInt)
+    }
+
     logger.info("Length Limit of a single sentence:")
     logger.info(singleSentenceLength.toString())    
     
@@ -100,17 +107,27 @@ object App {
     mod.bind(forTraining = false, dataShapes = dataDesc)
 
     init_embedding(embeddingFile)
+
+    logger.info("Embedding Loaded:")
+    logger.info(embeddingCache.size.toString())
+
     var input_str = "in his first stab at the form , jacquot takes a slightly anarchic approach that works only sporadically ."
+
     var embedding_generation = embedding(Array(input_str.split(" ")), dShape)
     var output = batchInference(embedding_generation, mod)
     var inference_output_array =  output.at(0).toArray
     var max_value_inference = inference_output_array.max
     val inference_index = inference_output_array.indexOf(max_value_inference)
 
+    logger.info("Input:")
+    logger.info(input_str)
+
     logger.info("Inference Output - Class:")
     logger.info(inference_index.toString())
 
     logger.info("Inference Output - Vector:")
     logger.info(output.at(0).toArray.map(_.toString()).mkString(" "))
+
+    System.exit(0)
   }
 }
